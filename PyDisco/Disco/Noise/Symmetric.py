@@ -1,7 +1,7 @@
 """
 Symmetric Disco module
 """
-from PyDisco.Strobe.Strobe import Strobe
+from Strobe.Strobe import Strobe
 import os
 
 class Symmetric(object):
