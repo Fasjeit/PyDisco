@@ -1,0 +1,10 @@
+language: python  
+sudo: required  
+dist: trusty
+python: 3.6
+script:    
+  - python .\PyDisco\Tests.py
+notifications:
+  email:
+    on_success: never # default: change
+    on_failure: change # default: always
