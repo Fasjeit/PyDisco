@@ -8,7 +8,7 @@ for example purposes only.
 """
 
 from __future__ import absolute_import
-from Strobe.KeccakF import KeccakF
+from KeccakF import KeccakF
 
 class AuthenticationFailed(Exception):
     """Thrown when a MAC fails."""

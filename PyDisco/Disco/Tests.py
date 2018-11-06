@@ -1,7 +1,7 @@
 import unittest
 import sys
 import binascii
-from Disco.Noise.Symmetric import Symmetric
+from Symmetric import Symmetric
 
 class SymmetricTests(unittest.TestCase):
     def test_hash(self):
@@ -55,8 +55,8 @@ class SymmetricTests(unittest.TestCase):
         key = bytearray('eda8506c1fb0bbcc3f62626fef074bbf2d09a8c7c608f3fa1482c9a625d00f75', "UTF8")
         mesasge = bytearray('hoy, how are you?', 'UTF8')
 
-        plaintext_and_tag = Symmetric.ProtectIntegrity(key, mesasge)
-        retrieved_message = Symmetric.VerifyIntegrity(key, plaintext_and_tag)
+        plaintext_and_tag = Symmetric.protect_integrity(key, mesasge)
+        retrieved_message = Symmetric.verify_integrity(key, plaintext_and_tag)
 
         assert(mesasge == retrieved_message)
 
@@ -65,11 +65,15 @@ class SymmetricTests(unittest.TestCase):
         tamperDetected = False
 
         try:
-            Symmetric.VerifyIntegrity(key, plaintext_and_tag)
+            Symmetric.verify_integrity(key, plaintext_and_tag)
             tamperDetected = False
         except:
             tamperDetected = True
         assert(tamperDetected)
+    
+    def test_noise_n(self):
+        # init
+        pass
 
 if __name__ == '__main__':
     unittest.main(exit=False)

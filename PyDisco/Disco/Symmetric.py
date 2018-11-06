@@ -1,7 +1,7 @@
 """
 Symmetric Disco module
 """
-from Strobe.Strobe import Strobe
+from Strobe import Strobe
 import os
 
 class Symmetric(object):
@@ -78,7 +78,7 @@ class Symmetric(object):
         return plaintext
 
     @staticmethod
-    def ProtectIntegrity(key, plaintext):
+    def protect_integrity(key, plaintext):
         if (len(key) < Symmetric.KEY_SIZE):
                 raise Exception(f'disco: using a key smaller than {Symmetric.KEY_SIZE*8}-bit' 
                                 + f' ({Symmetric.KEY_SIZE} bytes) has security consequences')
@@ -88,7 +88,7 @@ class Symmetric(object):
         return plaintext + hash.send_mac(Symmetric.TAG_SIZE)
 
     @staticmethod
-    def VerifyIntegrity(key, plaintextAndTag):
+    def verify_integrity(key, plaintextAndTag):
         if (len(key) < Symmetric.KEY_SIZE):
                 raise Exception(f'disco: using a key smaller than {Symmetric.KEY_SIZE*8}-bit' 
                                 + f' ({Symmetric.KEY_SIZE} bytes) has security consequences')

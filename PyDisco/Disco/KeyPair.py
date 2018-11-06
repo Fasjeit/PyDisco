@@ -1,6 +1,6 @@
 class KeyPair(object):
     """description of class"""
-    self.privateKey = []
-    self.pubblicKey = []
+    private_key = b''
+    public_key = b''
 
 
