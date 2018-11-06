@@ -3,7 +3,7 @@ sudo: required
 dist: trusty
 python: 3.6
 script:    
-  - python ./PyDisco/Tests.py
+  - python ./PyDisco/Disco/Tests.py
 notifications:
   email:
     on_success: never # default: change
