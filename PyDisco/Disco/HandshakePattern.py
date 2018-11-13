@@ -2,7 +2,7 @@ from NoiseHandshakeType import NoiseHandshakeType
 from Tokens import Tokens
 
 class HandshakePattern(object):
-    pattern_dictionary = None
+    pattern_dictionary = {}
 
     def __init__(self, pattern, name, pre_message_patterns, message_patterns):
         if HandshakePattern.pattern_dictionary.__contains__(pattern):
