@@ -1,2 +1,2 @@
-class MessagePattern(object):
-    pass
+#class MessagePattern(object):
+#    pass

@@ -6,19 +6,19 @@ import os
 
 class Symmetric(object):
     """description of class"""
-    SECURITY_PARAMETER = 128
-    NONCE_SIZE = 192 // 8
-    TAG_SIZE = SECURITY_PARAMETER // 8
-    MINIMUM_CIPHERTEXT_SIZE = NONCE_SIZE + TAG_SIZE
-    HASH_SIZE = SECURITY_PARAMETER * 2 // 8
-    KEY_SIZE = SECURITY_PARAMETER // 8;
-    PSK_KEY_SIZE = 32;
+    SECURITY_PARAMETER : int = 128
+    NONCE_SIZE : int = 192 // 8
+    TAG_SIZE : int = SECURITY_PARAMETER // 8
+    MINIMUM_CIPHERTEXT_SIZE : int = NONCE_SIZE + TAG_SIZE
+    HASH_SIZE : int = SECURITY_PARAMETER * 2 // 8
+    KEY_SIZE : int = SECURITY_PARAMETER // 8;
+    PSK_KEY_SIZE : int = 32;
 
-    def __init__(self):
-        pass
+    #def __init__(self):
+    #    pass
 
     @staticmethod
-    def hash(input, output_len):
+    def hash(input : bytes, output_len : int) -> bytes:
         if output_len < Symmetric.HASH_SIZE:
             raise Exception(f'discoNet: an output length smaller than {Symmetric.HASH_SIZE*8}-bit' 
                             + f' ({Symmetric.HASH_SIZE} bytes) has security consequences"')
@@ -28,7 +28,7 @@ class Symmetric(object):
         return hash.prf(output_len)
 
     @staticmethod
-    def Encrypt(key, plaintext):
+    def Encrypt(key : bytes, plaintext : bytes) -> bytes:
         if (len(key) < Symmetric.KEY_SIZE):
             raise Exception(f'disco: using a key smaller than {Symmetric.KEY_SIZE*8}-bit' 
                             + f' ({Symmetric.KEY_SIZE} bytes) has security consequences"')
@@ -51,14 +51,14 @@ class Symmetric(object):
         return ciphertext
     
     @staticmethod
-    def Decrypt(key, ciphertext):
+    def Decrypt(key : bytes, ciphertext : bytes) -> bytes:
         if (len(key) < Symmetric.KEY_SIZE):
             raise Exception(f'disco: using a key smaller than {Symmetric.KEY_SIZE*8}-bit' 
                             + f' ({Symmetric.KEY_SIZE} bytes) has security consequences')
         
         if len(ciphertext) < Symmetric.MINIMUM_CIPHERTEXT_SIZE:
             raise Exception(f'disco: ciphertext is too small, it should contain at a '
-                            + f'minimum a {Symmetric.NonceSize * 8}-bit nonce and a {Symmetric.NonceSize * 8}-bit tag')
+                            + f'minimum a {Symmetric.NONCE_SIZE * 8}-bit nonce and a {Symmetric.NONCE_SIZE * 8}-bit tag')
         ae = Strobe("DiscoAEAD", security = Symmetric.SECURITY_PARAMETER)
 
         # Absorb the key
@@ -78,7 +78,7 @@ class Symmetric(object):
         return plaintext
 
     @staticmethod
-    def protect_integrity(key, plaintext):
+    def protect_integrity(key : bytes, plaintext : bytes) -> bytes:
         if (len(key) < Symmetric.KEY_SIZE):
                 raise Exception(f'disco: using a key smaller than {Symmetric.KEY_SIZE*8}-bit' 
                                 + f' ({Symmetric.KEY_SIZE} bytes) has security consequences')
@@ -88,7 +88,7 @@ class Symmetric(object):
         return plaintext + hash.send_mac(Symmetric.TAG_SIZE)
 
     @staticmethod
-    def verify_integrity(key, plaintextAndTag):
+    def verify_integrity(key : bytes, plaintextAndTag : bytes) -> bytes:
         if (len(key) < Symmetric.KEY_SIZE):
                 raise Exception(f'disco: using a key smaller than {Symmetric.KEY_SIZE*8}-bit' 
                                 + f' ({Symmetric.KEY_SIZE} bytes) has security consequences')

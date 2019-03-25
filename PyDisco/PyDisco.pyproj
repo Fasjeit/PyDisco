@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>fea879b3-ba96-4dd1-9dd2-34a24fe778c4</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Disco\Noise\Symmetric.py</StartupFile>
+    <StartupFile>Disco\Connetion.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -21,25 +21,33 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Disco\Asymmetric.py" />
+    <Compile Include="Disco\Connetion.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Disco\NoiseConfig.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Disco\DiscoHelper.py" />
+    <Compile Include="Disco\HandshakePattern.py" />
+    <Compile Include="Disco\HandshakeState.py" />
+    <Compile Include="Disco\KeccakF.py" />
     <Compile Include="Disco\KeyPair.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Disco\Noise\Symmetric.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="PyDisco.py" />
-    <Compile Include="Strobe\Strobe.py" />
-    <Compile Include="Strobe\KeccakF.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Tests.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Disco\MessagePattern.py" />
+    <Compile Include="Disco\NoiseHandshakeType.py" />
+    <Compile Include="Disco\Strobe.py" />
+    <Compile Include="Disco\Symmetric.py" />
+    <Compile Include="Disco\SymmetricState.py" />
+    <Compile Include="Disco\Tests.py" />
+    <Compile Include="Disco\Tokens.py" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Disco\" />
-    <Folder Include="Disco\Noise\" />
-    <Folder Include="Strobe\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="mypy.ini" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

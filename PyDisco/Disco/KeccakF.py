@@ -236,7 +236,7 @@ def cSHAKE128(S,N=""):
     return KeccakMode("cSHAKE128",S=S,N=N,rate_bytes=200-128//4)
     
 def cSHAKE256(S,N=""):
-    return KeccakMode("cSHAKE256",S=S,N=N,rate_bytes=200-256/4)
+    return KeccakMode("cSHAKE256",S=S,N=N,rate_bytes=200-256//4)
     
 class SimpleTestVectors(unittest.TestCase):
     def test(self):
@@ -251,9 +251,9 @@ class SimpleTestVectors(unittest.TestCase):
             codecs.decode("04a371e84ecfb5b8b77cb48610fca8182dd457ce6f326a0fd3d7ec2f1e91636d"
             +"ee691fbe0c985302ba1b0d8dc78c086346b533b49c030d99a27daf1139d6e75e","hex"))
 
-        self.assertEqual(SHAKE128.hash(message,128/4),
+        self.assertEqual(SHAKE128.hash(message,128//4),
              codecs.decode("1a96182b50fb8c7e74e0a707788f55e98209b8d91fade8f32f8dd5cff7bf21f5","hex"))
-        self.assertEqual(SHAKE256.hash(message,256/4),
+        self.assertEqual(SHAKE256.hash(message,256//4),
             codecs.decode("4d8c2dd2435a0128eefbb8c36f6f87133a7911e18d979ee1ae6be5d4fd2e3329"
             +"40d8688a4e6a59aa8060f1f9bc996c05aca3c696a8b66279dc672c740bb224ec","hex"))
         #self.assertEqual(cSHAKE128("Email Signature").hash(bytearray((i for i in xrange(0x04))),32),
@@ -262,5 +262,3 @@ class SimpleTestVectors(unittest.TestCase):
         #     codecs.decode("c5221d50e4f822d96a2e8881a961420f294b7b24fe3d2094baed2c6524cc166b","hex"))
             
         # TODO: test cSHAKE256; more vectors; Monte Carlo
-
-        

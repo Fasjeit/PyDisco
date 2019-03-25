@@ -2,17 +2,27 @@ from HandshakePattern import HandshakePattern
 from HandshakeState import HandshakeState
 from SymmetricState import SymmetricState
 from Tokens import Tokens
+from KeyPair import KeyPair
+from NoiseHandshakeType import NoiseHandshakeType
 
 class DiscoHelper(object):
     
     @staticmethod
-    def InitializeDisco(handshake_type, inititator, prologue, s, e, rs, re):
+    def InitializeDisco(
+            handshake_type : NoiseHandshakeType, 
+            initiator : bool, 
+            prologue : bytes, 
+            s : KeyPair = None, 
+            e : KeyPair = None, 
+            rs : KeyPair = None, 
+            re : KeyPair = None) -> HandshakeState:
+
         handshake_pattern = HandshakePattern.get_pattern(handshake_type)
 
         handshake_state = HandshakeState()
-        handshake_state.symmetric_state = SymmetricState(f'Noise_{handshakePattern.Name}_25519_STROBEv1.0.2')
-        handshake_state.initiator = inititator
-        handshake_state.should_write = inititator
+        handshake_state.symmetric_state = SymmetricState(f'Noise_{handshake_pattern.name}_25519_STROBEv1.0.2')
+        handshake_state.initiator = initiator
+        handshake_state.should_write = initiator
 
         try:
             if prologue is not None:
@@ -28,7 +38,7 @@ class DiscoHelper(object):
 
             # initiator pre-message pattern
             for token in handshake_pattern.pre_message_patterns[0]:
-                if token == Tokens.s:
+                if token == Tokens.TOKEN_S:
                     if initiator:
                         if s is None:
                             raise Exception('disco: the static key of the client should be set')

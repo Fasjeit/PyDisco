@@ -1,33 +1,38 @@
 from Asymmetric import Asymmetric
 from Tokens import Tokens
+from SymmetricState import SymmetricState
+from KeyPair import KeyPair
+from typing import Tuple
+from Strobe import Strobe
+from typing import List
 
 class HandshakeState(object):
-    symmetric_state = None
-    key_pair = None
-    s = None
-    e = None
-    rs = None
-    re = None
-    initiator = False
-    message_patterns = []
-    should_write = False
-    psk = None
+    symmetric_state : SymmetricState
+    key_pair : KeyPair 
+    s : KeyPair 
+    e : KeyPair 
+    rs : KeyPair 
+    re : KeyPair 
+    initiator : bool = False
+    message_patterns : List[List[Tokens]] = []
+    should_write : bool = False
+    psk : bytes
 
-    def __del__(self):
+    def __del__(self) -> None:
         self.s.__del__()
         self.rs.__del__()
         self.e.__del__()
         self.re.__del__()
 
-    def write_message(self, payload, message_buffer):
-        message_buffer = []
+    def write_message(self, payload : bytes, message_buffer : bytes) -> Tuple[Strobe, Strobe]:
+        message_buffer = bytes()
 
         # is it our turn to write?
         if not self.should_write:
             raise Exception("disco: unexpected call to write_message should be read_message")
 
         # do we have a token to process?
-        if len(self.message_patterns) == 0 or len(self.message_patterns[0].tokens) == 0:
+        if len(self.message_patterns) == 0 or len(self.message_patterns[0]) == 0:
             raise Exception("disco: no more tokens or message patterns to write")
 
         # process the patterns
@@ -68,7 +73,7 @@ class HandshakeState(object):
 
         # are there more message patterns to process?
         if len(self.message_patterns) == 1:
-            self.message_patterns = None
+            self.message_patterns = []
             # If there are no more message patterns returns two new CipherState objects
             initiator_state, responder_state = self.symmetric_state.split()
         else:
@@ -80,3 +85,32 @@ class HandshakeState(object):
 
         return initiator_state, responder_state
 
+    def read_message(self, message : bytes, payload_buffer : bytes) -> Tuple[Strobe, Strobe]:
+        initiator_state : Strobe
+        responder_state : Strobe
+        payload_buffer = bytes()
+
+        # is it our turn to read?
+        if self.should_write:
+            raise Exception("disco: unexpected call to ReadMessage should be WriteMessage")
+
+        # do we have a token to process?
+        if len(self.message_patterns) == 0 or len(self.message_patterns[0]) == 0:
+            raise Exception("disco: no more tokens or message patterns to write")
+
+        # process the patterns
+        offset  = 0
+        for pattern in self.message_patterns[0]:
+            if pattern == Tokens.TOKEN_E:
+                if len(message) - offset < Asymmetric.DH_LEN :
+                    raise Exception("disco: the received ephemeral key is to short")
+                self.re = KeyPair()
+                self.re.public_key = message[offset: Asymmetric.DH_LEN]
+                offset += Asymmetric.DH_LEN
+                self.symmetric_state.mix_hash(self.re.public_key)
+                if len(self.psk) > 0:
+                    self.symmetric_state.mix_key(self.re.public_key)
+            elif pattern == Tokens.TOKEN_S:
+                # TODO other tokens here
+                pass
+        return None, None
