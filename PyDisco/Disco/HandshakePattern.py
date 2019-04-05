@@ -66,4 +66,5 @@ class HandshakePattern(object):
         if HandshakePattern.pattern_dictionary is None:
             HandshakePattern.__static_init_patterns__()
         return HandshakePattern.pattern_dictionary[noise_type]
-    
+
+HandshakePattern.__static_init_patterns__()

@@ -7,6 +7,7 @@ from KeyPair import KeyPair
 from Asymmetric import Asymmetric
 from DiscoHelper import DiscoHelper
 from socket import socket
+from Symmetric import Symmetric
 
 class Connection(object):
     _config : NoiseConfig
@@ -48,7 +49,43 @@ class Connection(object):
             raise Exception('disco: a server should not write on one-way patterns')
 
         # Make sure to go through the handshake first
-        return 0
+        self.handshake()
+
+        mutex : Lock
+
+        # Lock the write mutex
+        if self._is_half_duplex:
+            mutex = self._half_duplex_mutex
+        else:
+            mutex = self._out_lock
+        mutex.acquire()
+        try:
+            total_bytes = 0
+
+            # process the data in loop
+            while count - total_bytes > 0:
+                data_len = NoiseConfig.NOISE_MAX_PLAINTEXT_SIZE if count > NoiseConfig.NOISE_MAX_PLAINTEXT_SIZE else count 
+                data_len = count - total_bytes if data_len > count - total_bytes else data_len
+            
+                # encrypt
+                ciphertext = self._strobe_out.send_enc(data[offset: offset + data_len])
+                mac = self._strobe_out.send_mac(Symmetric.TAG_SIZE)
+
+                total_length = len(ciphertext) + len (mac)
+                length = bytes([(total_length)>>8, ((total_length) % 256)])
+                # send data
+                # len || ct|| mac
+
+                self._connection.send(length)
+                self._connection.send(ciphertext)
+                self._connection.send(mac)
+
+                # prepare next loop iteration
+                total_bytes += data_len
+                offset += data_len
+            return total_bytes
+        finally:
+            mutex.release()
 
     def handshake(self) -> None:
         # Locking the handshakeMutex

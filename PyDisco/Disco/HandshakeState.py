@@ -5,6 +5,7 @@ from KeyPair import KeyPair
 from typing import Tuple
 from Strobe import Strobe
 from typing import List
+from Symmetric import Symmetric
 
 class HandshakeState(object):
     symmetric_state : SymmetricState
@@ -111,6 +112,43 @@ class HandshakeState(object):
                 if len(self.psk) > 0:
                     self.symmetric_state.mix_key(self.re.public_key)
             elif pattern == Tokens.TOKEN_S:
-                # TODO other tokens here
-                pass
-        return None, None
+                tag_len = 0
+                if self.symmetric_state.is_keyed:
+                    tag_len = Symmetric.TAG_SIZE
+                if len(message) - offset < Asymmetric.DH_LEN + tag_len:
+                    raise Exception("disco: the received static key is to short")
+                
+                decrypted = self.symmetric_state.decrypt_and_hash(message[offset: offset + Asymmetric.DH_LEN + tag_len])
+
+                # if we already know the remote static, compare
+                self.rs = KeyPair(public_key=decrypted)
+                offset += Asymmetric.DH_LEN + tag_len
+            elif pattern == Tokens.TOKEN_EE:
+                self.symmetric_state.mix_key(Asymmetric.dh(self.e, self.re.public_key))
+            elif pattern == Tokens.TOKEN_ES:
+                if self.initiator:
+                    self.symmetric_state.mix_key(Asymmetric.dh(self.e, self.rs.public_key))
+                else:
+                    self.symmetric_state.mix_key(Asymmetric.dh(self.s, self.re.public_key))
+            elif pattern == Tokens.TOKEN_SE:
+                if self.initiator:
+                    self.symmetric_state.mix_key(Asymmetric.dh(self.s, self.rs.public_key))
+                else:
+                    self.symmetric_state.mix_key(Asymmetric.dh(self.e, self.rs.public_key))
+            elif pattern == Tokens.TOKEN_SS:
+                self.symmetric_state.mix_key(Asymmetric.dh(self.s, self.rs.public_key))
+            elif pattern == Tokens.TOKEN_PSK:
+                self.symmetric_state.mix_key_and_hash(self.psk)
+
+        # Appends decrpyAndHash(payload) to the buffer
+        plaintext = self.symmetric_state.decrypt_and_hash(message[offset:])
+        payload_buffer += plaintext 
+        # remove the pattern from the messagePattern
+        if len(self.message_patterns) == 1:
+            # If there are no more message patterns returns two new CipherState objects
+            initiator_state, responder_state = self.symmetric_state.split()
+        else:
+            self.message_patterns = self.message_patterns[1:]
+        # change the direction
+        self.should_write = True
+        return initiator_state, responder_state
