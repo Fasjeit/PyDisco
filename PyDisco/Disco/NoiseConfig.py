@@ -11,10 +11,10 @@ class NoiseConfig(object):
 
     half_duplex : bool
     key_pair : KeyPair 
-    pre_shared_key : bytearray 
-    prologue : bytes
-    remote_key : bytes
-    static_public_key_proof : bytes
+    pre_shared_key : bytearray  = bytearray()
+    prologue : bytes = bytes()
+    remote_key : bytes = bytes()
+    static_public_key_proof : bytes = bytes()
     handshake_pattern : NoiseHandshakeType
     public_key_verifier = None
     

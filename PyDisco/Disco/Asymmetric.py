@@ -12,7 +12,9 @@ class Asymmetric(object):
         key_pair = KeyPair()
 
         if private_key is None:
-            key_pair.private_key = bytes(os.urandom(Asymmetric.DH_LEN))
+            #Q_
+            #key_pair.private_key = bytes(32)
+            key_pair.private_key = os.urandom(Asymmetric.DH_LEN)
         else:
             if len(private_key) != Asymmetric.DH_LEN:
                 raise Exception(f'disco: expecting {Asymmetric.DH_LEN} byte key array')

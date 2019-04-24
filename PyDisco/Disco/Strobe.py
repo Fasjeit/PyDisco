@@ -10,6 +10,9 @@ for example purposes only.
 from __future__ import absolute_import
 from KeccakF import KeccakF
 
+# #Q_ tmp
+import threading
+
 class AuthenticationFailed(Exception):
     """Thrown when a MAC fails."""
     pass
@@ -42,6 +45,7 @@ class Strobe(object):
                 (copy_of.R,copy_of.pos,copy_of.posbegin,copy_of.I0,
                  copy_of.F.copy())
             self.st = bytearray(copy_of.st)
+            self.initialized = copy_of.initialized
     
     def copy(self): return Strobe(None,copy_of=self)
     def deepcopy(self): return self.copy()
@@ -111,6 +115,9 @@ class Strobe(object):
         empty byte array (plus any metadata returned) on success, and throws
         AuthenticationFailed on failure.
         """
+        #Q_ 
+        print (str(threading.get_ident()) + " -> " + str(self.st[0]) + ' ' + str(self.st[199]))
+
         assert not (flags & (K|1<<6|1<<7)) # Not implemented here
         meta_out = bytearray()
         if more:

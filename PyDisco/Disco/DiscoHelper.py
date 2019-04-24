@@ -1,4 +1,4 @@
-from HandshakePattern import HandshakePattern
+from HandshakePattern import HandshakePatterns
 from HandshakeState import HandshakeState
 from SymmetricState import SymmetricState
 from Tokens import Tokens
@@ -17,7 +17,7 @@ class DiscoHelper(object):
             rs : KeyPair = None, 
             re : KeyPair = None) -> HandshakeState:
 
-        handshake_pattern = HandshakePattern.get_pattern(handshake_type)
+        handshake_pattern = HandshakePatterns.get_pattern(handshake_type)
 
         handshake_state = HandshakeState()
         handshake_state.symmetric_state = SymmetricState(f'Noise_{handshake_pattern.name}_25519_STROBEv1.0.2')

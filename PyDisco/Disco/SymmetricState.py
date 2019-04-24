@@ -40,7 +40,7 @@ class SymmetricState(object):
         plaintext_len = len(ciphertext) - Symmetric.TAG_SIZE
         plaintext = self.strobe_state.recv_enc(ciphertext[:plaintext_len])
 
-        self.strobe_state.recv_mac(ciphertext[-Symmetric.TAG_SIZE])
+        self.strobe_state.recv_mac(ciphertext[plaintext_len:])
 
         return plaintext
 

@@ -20,12 +20,18 @@ class HandshakeState(object):
     psk : bytes
 
     def __del__(self) -> None:
-        self.s.__del__()
-        self.rs.__del__()
-        self.e.__del__()
-        self.re.__del__()
+        pass
+        #Q_ ????
+        # if (self.s):
+        #     self.s.__del__()
+        # if self.rs:
+        #     self.rs.__del__()
+        # if self.e:
+        #     self.e.__del__()
+        # if self.re:
+        #     self.re.__del__()
 
-    def write_message(self, payload : bytes, message_buffer : bytes) -> Tuple[Strobe, Strobe]:
+    def write_message(self, payload : bytes) -> Tuple[Tuple[Strobe, Strobe], bytes]:
         message_buffer = bytes()
 
         # is it our turn to write?
@@ -37,7 +43,7 @@ class HandshakeState(object):
             raise Exception("disco: no more tokens or message patterns to write")
 
         # process the patterns
-        for pattern in self.message_patterns:
+        for pattern in self.message_patterns[0]:
             if pattern == Tokens.TOKEN_E:
                 self.e = Asymmetric.generate_key_pair()
                 message_buffer += bytearray(self.e.public_key)
@@ -84,9 +90,9 @@ class HandshakeState(object):
         # change the direction
         self.should_write = False
 
-        return initiator_state, responder_state
+        return (initiator_state, responder_state), message_buffer
 
-    def read_message(self, message : bytes, payload_buffer : bytes) -> Tuple[Strobe, Strobe]:
+    def read_message(self, message : bytes) -> Tuple[Tuple[Strobe, Strobe], bytes]:
         initiator_state : Strobe
         responder_state : Strobe
         payload_buffer = bytes()
@@ -151,4 +157,4 @@ class HandshakeState(object):
             self.message_patterns = self.message_patterns[1:]
         # change the direction
         self.should_write = True
-        return initiator_state, responder_state
+        return (initiator_state, responder_state), payload_buffer

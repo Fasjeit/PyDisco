@@ -2,13 +2,16 @@ import unittest
 import sys
 import binascii
 import socket
+import threading
+import time
 from Symmetric import Symmetric
 from Asymmetric import Asymmetric
 from NoiseConfig import NoiseConfig
 from NoiseHandshakeType import NoiseHandshakeType
+from Connetion import Connection
 
 class SymmetricTests(unittest.TestCase):
-    def test_hash(self) -> None:
+    def _test_hash(self) -> None:
         base_hash = "eda8506c1fb0bbcc3f62626fef074bbf2d09a8c7c608f3fa1482c9a625d00f75"
         text_data = bytearray("hi, how are you?", 'UTF8')
 
@@ -27,7 +30,7 @@ class SymmetricTests(unittest.TestCase):
     #     # Trying with NewHash with streaming and without streaming
     #     #var h1 = Hash()
     
-    def test_encrypt_decrypt(self) -> None:
+    def _test_encrypt_decrypt(self) -> None:
         key = bytearray('eda8506c1fb0bbcc3f62626fef074bbf2d09a8c7c608f3fa1482c9a625d00f75', "UTF8")
         plaintexts = ["", "a", "ab", "abc", "abcd", "short", "hello, how are you?", "this is very short",
                 "this is very long though, like, very very long, should we test very very long things here?",
@@ -56,7 +59,7 @@ class SymmetricTests(unittest.TestCase):
             decrypted = Symmetric.Decrypt(key, ciphertext)
             assert(decrypted.decode("utf-8") == plaintextString)
     
-    def test_ProtectVerifyIntegrity(self) -> None:
+    def _test_ProtectVerifyIntegrity(self) -> None:
         key = bytearray('eda8506c1fb0bbcc3f62626fef074bbf2d09a8c7c608f3fa1482c9a625d00f75', "UTF8")
         mesasge = bytearray('hoy, how are you?', 'UTF8')
 
@@ -84,13 +87,45 @@ class SymmetricTests(unittest.TestCase):
         address = "127.0.0.1"
         server_set_up = False
 
-        listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        listener.bind((address, port))
-        listener.listen(1)
+        def server():
+            # server begin
+            listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            listener.bind((address, port))
+            listener.listen(1)
 
-        conn, addr = listener.accept()
+            server_socket, addr = listener.accept()
+            server_connection = Connection(server_socket)
+            server_connection.authenticate_as_server(server_config)
 
-        pass
+            buf = bytes(100)
+            n = server_connection.read(buf, 0, len(buf))
+            
+            if buf[n:] != bytearray('hello', "UTF8"):
+                raise Exception('client message failed')
+            
+            # Expect error in here
+            try:
+                data = bytearray('ca va', "UTF8")
+                server_connection.write(data, 0, len(data))
+            except Exception as ex:
+                if str(ex) != 'disco: a server should not write on one-way patterns':
+                    raise ex
+            listener.close()
+        #server end
+        def client():
+            time.sleep(3)
+            client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            client.connect((address, port))
+
+            client_connection = Connection(client)
+            client_connection.authenticate_as_client(client_config)
+            data = bytearray('hello', "UTF8")
+            #data = bytearray([4])
+            client_connection.write(data, 0, len(data))
+        
+        thread1 = threading.Thread(target = server)
+        thread1.start()
+        client()
     
     def test_noise_n(self) -> None:
         # init
@@ -102,9 +137,14 @@ class SymmetricTests(unittest.TestCase):
         server_config.key_pair = Asymmetric.generate_key_pair();
         server_config.handshake_pattern = NoiseHandshakeType.NOISE_N
 
-        # self.run_one_way_test(client_config, server_config, 1803)
+        self.run_one_way_test(client_config, server_config, 1804)
 
 
 
 if __name__ == '__main__':
     unittest.main(exit=False)
+
+
+
+    # read is now now working as no ref params in python. TODO: Rewrite all IO methods with tuples
+    # inside everything is fine at least for e->se pattern

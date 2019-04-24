@@ -11,7 +11,7 @@ class Symmetric(object):
     TAG_SIZE : int = SECURITY_PARAMETER // 8
     MINIMUM_CIPHERTEXT_SIZE : int = NONCE_SIZE + TAG_SIZE
     HASH_SIZE : int = SECURITY_PARAMETER * 2 // 8
-    KEY_SIZE : int = SECURITY_PARAMETER // 8;
+    KEY_SIZE : int = SECURITY_PARAMETER // 8
     PSK_KEY_SIZE : int = 32;
 
     #def __init__(self):
