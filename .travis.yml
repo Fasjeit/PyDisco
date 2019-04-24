@@ -2,7 +2,8 @@ language: python
 sudo: required  
 dist: trusty
 python: 3.6
-script:    
+script: 
+  - python -m pip install PyNaCl
   - python ./PyDisco/Disco/Tests.py
 notifications:
   email:
